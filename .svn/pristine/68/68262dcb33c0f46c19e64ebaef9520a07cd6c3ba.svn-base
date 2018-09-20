@@ -1,0 +1,381 @@
+package com.zdtech.platform.web.controller.funcexec;
+
+import com.zdtech.platform.framework.entity.*;
+import com.zdtech.platform.framework.network.Client;
+import com.zdtech.platform.framework.network.entity.Message;
+import com.zdtech.platform.framework.network.entity.Request;
+import com.zdtech.platform.framework.network.entity.SimSendMessage;
+import com.zdtech.platform.framework.network.tcp.NettyClient;
+import com.zdtech.platform.framework.repository.*;
+import com.zdtech.platform.framework.utils.XmlDocHelper;
+import com.zdtech.platform.framework.utils.XmlJsonHelper;
+import com.zdtech.platform.service.funcexec.FuncExecService;
+import com.zdtech.platform.service.funcexec.FuncMarkService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by lyj on 2018/1/10.
+ */
+@Controller
+@RequestMapping("/func/mark")
+public class FuncMarkController {
+
+    @Autowired
+    private FuncExecService funcExecService;
+    @Autowired
+    private SimSysInsReplyRuleDao simSysInsReplyRuleDao;
+    @Autowired
+    private NxyFuncUsecaseDataRuleDao ruleDao;
+    @Autowired
+    private MsgFieldDao msgFieldDao;
+    @Autowired
+    private NxyFuncCaseRecvDao caseRecvDao;
+    @Autowired
+    private NxyFuncCaseSendDao caseSendDao;
+    @Autowired
+    private FuncMarkService funcMarkService;
+    @Autowired
+    private SimSysInsMessageDao simSysInsMessageDao;
+    @Autowired
+    private SimSystemInstanceDao instanceDao;
+    @Autowired
+    private NxyFuncItemDao nxyFuncItemDao;
+    @Autowired
+    private NxyFuncUsecaseDao nxyFuncUsecaseDao;
+
+    /**
+     * 来账案例管理列表
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public String tolist(Model model) {
+        return "/funcexec/mark/func-item-list";
+    }
+
+    /**
+     * 来账报文列表
+     * @return
+     */
+    @RequestMapping(value = "/markList", method = RequestMethod.GET)
+    public String tolist() {
+        return "/funcexec/mark/mark-list";
+    }
+
+    @RequestMapping(value = "/copyItemPage", method = RequestMethod.GET)
+    public String copyItemPage() {
+        return "/funcexec/mark/copy-select";
+    }
+
+    @RequestMapping(value = "/copyUsecasePage", method = RequestMethod.GET)
+    public String copyUsecasePage() {
+        return "/funcexec/mark/usecase-copy-select";
+    }
+
+    /**
+     * 添加来账功能测试项
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/addItemPage", method = RequestMethod.GET)
+    public String addItemPage(Model model){
+        return "/funcexec/mark/func-item-add";
+    }
+
+    /**
+     * 添加用例
+     * @param model
+     * @param itemId
+     * @return
+     */
+    @RequestMapping(value = "/addUsecasePage/{itemId}", method = RequestMethod.GET)
+    public String addUsecasePage(Model model, @PathVariable("itemId") Long itemId){
+        model.addAttribute("itemId", itemId);
+        return "/funcexec/mark/func-usecase-add";
+    }
+
+    /**
+     * 用例数据列表
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/usecaseDataListPage", method = RequestMethod.GET)
+    public String usecaseListPage(Model model){
+        return "/funcexec/mark/func-usecase-data-list";
+    }
+
+    @RequestMapping(value = "/msgList", method = RequestMethod.GET)
+    public String msgList(Model model, Long itemId, Long usecaseId){
+        SimSystemInstance instance;
+        if(itemId==0){
+            NxyFuncUsecase usecase = nxyFuncUsecaseDao.findOne(usecaseId);
+            instance = usecase.getNxyFuncItem().getTestProject().getInstance();
+        } else {
+            NxyFuncItem item = nxyFuncItemDao.findOne(itemId);
+            instance = item.getTestProject().getInstance();
+        }
+        model.addAttribute("instanceName", instance.getName());
+        model.addAttribute("instanceId", instance.getId());
+        return "/funcexec/mark/msg-list";
+    }
+
+    @RequestMapping(value = "/usecaseDataPage", method = RequestMethod.GET)
+    public String usecaseDataPage(Model model) {
+        return "/funcexec/mark/func-usecase-data";
+    }
+
+    @RequestMapping(value = "/msgPage", method = RequestMethod.GET)
+    public String msgPage(Model model){
+        return "/funcexec/mark/func-usecase-data-detail";
+    }
+
+    @RequestMapping(value = "/expected", method = RequestMethod.GET)
+    public String expected(Model model){
+        return "/funcexec/mark/expected-list";
+    }
+
+    @RequestMapping(value = "/ruleListPage", method = RequestMethod.GET)
+    public String ruleListPage(Model model){
+        return "/funcexec/mark/rule-list";
+    }
+
+    @RequestMapping(value = "/ruleAddPage", method = RequestMethod.GET)
+    public String ruleAddPage(Model model){
+        return "/funcexec/mark/rule-add";
+    }
+
+    @RequestMapping(value = "/field", method = RequestMethod.GET)
+    public String field(Model model){
+        return "/funcexec/mark/field-list";
+    }
+
+    @RequestMapping(value = "/addExcepted", method = RequestMethod.GET)
+    public String addExcepted(Model model){
+        return "/funcexec/mark/expected-set";
+    }
+
+    @RequestMapping("/updateExpected")
+    public String updateExpected(){
+        return "/funcexec/mark/expected-update";
+    }
+
+    /**
+     * 返回结果值列表信息
+     * @param params
+     * @param page
+     * @return
+     */
+    @RequestMapping(value = "/fieldList/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> fieldList(@PathVariable("id") Long id, @RequestParam Map<String, Object> params, @PageableDefault Pageable page) {
+        Map<String, Object> map = funcExecService.queryNxyFieldListForResp(id, params, page);
+        return map;
+    }
+
+    /*
+     *   查看请求报文的组成域
+    */
+    @RequestMapping(value = "/recvFieldList")
+    @ResponseBody
+    public List<Map<String, Object>> recvFieldList(Long id) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        if (id == null) {
+            return list;
+        }
+        List<Object> replyRule = simSysInsReplyRuleDao.findReqMsgs(id);
+        if(replyRule.isEmpty()) return list;
+        for(Object obj : replyRule){
+            Long req = Long.parseLong(obj.toString());
+            SimSysInsMessage sysInsMessage = simSysInsMessageDao.findOne(req);
+            List<SimSysInsMessageField> fields = sysInsMessage.getMsgFields();
+            for(SimSysInsMessageField field : fields){
+                Map<String, Object> map = new HashMap<>();
+                map.put("fieldId", field.getMsgField().getFieldId());
+                map.put("nameZh", field.getMsgField().getNameZh());
+                map.put("msgCode", sysInsMessage.getMsgType());
+                list.add(map);
+            }
+        }
+        return list;
+    }
+
+    @RequestMapping(value = "/rules/{usecaseDataId}", method = RequestMethod.POST)
+    @ResponseBody
+    public List<Map<String,Object>> rules(@PathVariable("usecaseDataId") Long usecaseDataId){
+        List<NxyFuncUsecaseDataRule> list = ruleDao.findByUcDataId(usecaseDataId);
+        List<Map<String,Object>> ret = new ArrayList<>();
+        for (NxyFuncUsecaseDataRule rule:list){
+            Map<String,Object> map = new HashMap<>();
+            map.put("id",rule.getId());
+            map.put("destFieldId",rule.getDestFieldId());
+            MsgField field = msgFieldDao.findByFieldId(rule.getDestFieldId());
+            map.put("destFieldZh",field.getNameZh());
+            map.put("srcFieldId",rule.getSrcFieldId());
+            if(StringUtils.isNotEmpty(rule.getSrcFieldId())){
+                map.put("srcFieldZh",msgFieldDao.findByFieldId(rule.getSrcFieldId()).getNameZh());
+            }
+            ret.add(map);
+        }
+        return ret;
+    }
+
+    @RequestMapping(value = "/markDataPage", method = RequestMethod.GET)
+    public String markDataPage() {
+        return "/funcexec/mark/mark-data-list";
+    }
+
+    @RequestMapping(value = "/markData")
+    @ResponseBody
+    public Map<String, Object> markData(Long id){
+        NxyFuncCaseSend send = caseSendDao.findByRecvId(id);
+        NxyFuncCaseRecv recv = send.getCaseRecv();
+        Map<String, Object> map = new HashMap<>();
+        map.put("send", XmlJsonHelper.XmltoJson(send.getMessage()));
+        map.put("recv", XmlJsonHelper.XmltoJson(recv.getMessage()));
+        map.put("resultDescript", send.getRemark());
+        return map;
+    }
+
+    @RequestMapping(value = "/sendMsg")
+    @ResponseBody
+    public String sendMsg(Long id){
+        String ret = "{\"total\":0\"rows\":[]}";
+        NxyFuncCaseSend send = caseSendDao.findByRecvId(id);
+        if(send != null && StringUtils.isNotEmpty(send.getMessage())){
+            return XmlJsonHelper.XmltoJson(send.getMessage());
+        }
+        if(send != null && send.getCaseRecv().getStatus()==3){
+            SimSysInsMessage insMessage = simSysInsMessageDao.findByMsgTypeAndSimId(send.getCaseRecv().getMsgCode(), send.getSysinsId());
+            List<Object> replyRule = simSysInsReplyRuleDao.findReplyMsgs(insMessage.getId());
+            if(replyRule.isEmpty()) return ret;
+            insMessage = simSysInsMessageDao.findOne(Long.parseLong(replyRule.get(0).toString()));
+            return XmlJsonHelper.XmltoJson(insMessage.getModelFileContent());
+        }
+        return ret;
+    }
+
+    @RequestMapping(value = "/recvMsg")
+    @ResponseBody
+    public String recvMsg(Long id){
+        String ret = "{\"total\":0\"rows\":[]}";
+        NxyFuncCaseRecv recv = caseRecvDao.findOne(id);
+        if(recv != null && StringUtils.isNotEmpty(recv.getMessage())){
+            ret = XmlJsonHelper.XmltoJson(recv.getMessage());
+        }
+        return ret;
+    }
+
+    @RequestMapping("/markCount")
+    public String markCountList(){
+        return "/funcexec/mark/mark-count-list";
+    }
+
+    @RequestMapping(value = "/bankList")
+    @ResponseBody
+    public Map<String, Object> bankList(@RequestParam Map<String, Object> params, @PageableDefault Pageable page){
+        Map<String, Object> ret = new HashMap<>();
+        try {
+            ret = funcMarkService.bankList(params, page);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    @RequestMapping(value = "/caseList")
+    @ResponseBody
+    public Map<String, Object> caseList(@RequestParam Map<String, Object> params, @PageableDefault Pageable page){
+        Map<String, Object> ret = new HashMap<>();
+        try {
+            ret = funcMarkService.caseList(params, page);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    @RequestMapping(value = "/caseRecvList")
+    @ResponseBody
+    public Map<String, Object> list(@RequestParam Map<String, Object> params, @PageableDefault Pageable page){
+        Map<String, Object> ret = new HashMap<>();
+        try {
+            ret = funcMarkService.caseRecvList(params, page);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    @RequestMapping(value = "/dels", method = RequestMethod.POST)
+    @ResponseBody
+    public Result dels(@RequestParam("ids[]")Long[] ids){
+        Result ret = new Result();
+        try {
+            for(Long id : ids){
+                caseRecvDao.delete(id);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            ret.setMsg("删除失败");
+            ret.setSuccess(false);
+        }
+        return ret;
+    }
+    /**
+     * @author  huangbo
+     * @create  2018/7/20
+     **/
+    @RequestMapping(value = "/sendManualMsg", method = RequestMethod.POST)
+    @ResponseBody
+    public Result sendManualMsg(Long id, String json){
+        Result result = new Result();
+        try {
+            String strXml = XmlJsonHelper.JsonToXml(json);
+            NxyFuncCaseSend send = caseSendDao.findByRecvId(id);
+            SimSystemInstance ssi = instanceDao.findByid(send.getSysinsId());
+            if (ssi == null) {
+                result.setSuccess(false);
+                result.setMsg("应答报文未指定仿真实例!");
+                return result;
+            }
+            SimSysInsMessage sysInsMessage = simSysInsMessageDao.findByMsgTypeAndSimId(send.getMsgCode(), ssi.getId());
+            if (sysInsMessage == null) {
+                result.setSuccess(false);
+                result.setMsg("仿真实例下没有该报文模板!");
+                return result;
+            }
+            strXml = XmlDocHelper.xmlZuZhuang(strXml, sysInsMessage);
+            send.setMessage(strXml);
+            caseSendDao.save(send);
+            if(send.getMsgCode().startsWith("NPS")) {
+                Client client = new NettyClient(ssi.getInsServerIp(), ssi.getInsServerPort());
+                client.connect();
+                SimSendMessage testMessage = new SimSendMessage(ssi.getId(), ssi.getAdapter().getId(), send.getId());
+                Message msg = testMessage;
+                Request request = new Request(msg);
+                client.send(request);
+                client.close();
+            } else { //http 处理
+                NxyFuncCaseRecv recv = caseRecvDao.findOne(id);
+                recv.setStatus(2);
+                caseRecvDao.save(recv);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            result.setSuccess(false);
+            result.setMsg("发送失败!");
+        }
+        return result;
+    }
+}

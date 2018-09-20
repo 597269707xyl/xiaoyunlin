@@ -1,0 +1,131 @@
+package com.zdtech.platform.service.message;
+
+import com.zdtech.platform.framework.entity.MsgCharset;
+import com.zdtech.platform.framework.entity.MsgCharsetEnum;
+import com.zdtech.platform.framework.entity.MsgDataType;
+import com.zdtech.platform.framework.entity.Result;
+import com.zdtech.platform.framework.repository.MsgCharsetDao;
+import com.zdtech.platform.framework.repository.MsgCharsetEnumDao;
+import com.zdtech.platform.framework.service.GenericService;
+import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by huangbo on 2016/5/18.
+ */
+@Service
+public class MsgCharsetService {
+    @Autowired
+    private MsgCharsetDao msgCharsetDao;
+    @Autowired
+    private GenericService genericService;
+    @Autowired
+    private MsgCharsetEnumDao msgCharsetEnumDao;
+
+    public void delCharset(Long id) {
+        MsgCharset msgCharset = msgCharsetDao.findOne(id);
+        if (msgCharset != null){
+            msgCharsetDao.delete(msgCharset);
+        }
+    }
+
+    public Map<String, Object> findMsgCharsetEnum(Map<String, Object> params, Pageable page) {
+        Pageable p = page;
+        if (page != null){
+            p = new PageRequest(page.getPageNumber() < 1?0:page.getPageNumber() - 1,page.getPageSize(),page.getSort());
+        }
+        Map<String, Object> map = genericService.commonQuery("msgCharset", params, p);
+        List<MsgCharset> tempMsgCharsets = (List<MsgCharset>) map.get("rows");
+        List<Map<String, Object>> transRows = new ArrayList<>();
+        for (MsgCharset tempForLoop1 : tempMsgCharsets) {
+            try {
+                Map<String, Object> transRow = BeanUtils.describe(tempForLoop1);
+                if (tempForLoop1.getChars() != null && tempForLoop1.getChars().size() > 0) {
+                    StringBuilder tempEnum = new StringBuilder();
+                    for (MsgCharsetEnum tempForLoop2 : tempForLoop1.getChars()) {
+                        tempEnum.append(",");
+                        tempEnum.append(tempForLoop2.getValue());
+                    }
+                    tempEnum.deleteCharAt(0);
+                    transRow.put("enum", tempEnum.toString());
+                }
+                transRows.add(transRow);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        map.put("rows", transRows);
+        return map;
+    }
+
+    public Result addCharset(MsgCharset msgCharset, String enumeration) {
+        Result result = null;
+/*        MsgCharset tempN = msgCharsetDao.findByNameOrCode(msgCharset.getName(),msgCharset.getCode());
+        if (tempN != null){
+            result = new Result(false,"字符集名称或代码重复");
+        }
+        else {*/
+            msgCharsetDao.save(msgCharset);
+            MsgCharset tempMsgCharset =msgCharsetDao.findByName(msgCharset.getName());
+            List<MsgCharsetEnum> msgCharsetEnums = new ArrayList<>();
+            String[] ids = enumeration.split(",");
+            for (String id : ids){
+                MsgCharsetEnum msgCharsetEnum = new MsgCharsetEnum();
+                msgCharsetEnum.setValue(id);
+                msgCharsetEnum.setCharset(tempMsgCharset);
+                msgCharsetEnums.add(msgCharsetEnum);
+            }
+            msgCharsetEnumDao.save(msgCharsetEnums);
+            result = new Result(true,"添加字符集成功");
+/*
+        }
+*/
+        return result;
+    }
+
+    public Result editCharset(MsgCharset msgCharset, String enumeration, String basicId) {
+        Result result = null;
+/*        MsgCharset tempN = msgCharsetDao.findByNameOrCode(msgCharset.getName(),msgCharset.getCode());
+        MsgCharset temp = msgCharsetDao.findOne(msgCharset.getId());
+        if (tempN != null && !msgCharset.getCode().equals(temp.getCode())&& !msgCharset.getName().equals(temp.getName())){
+            result = new Result(false,"字符集名称或代码重复");
+        }
+        else {*/
+            msgCharsetDao.save(msgCharset);
+            MsgCharset tempMsgCharset =msgCharsetDao.findByName(msgCharset.getName());
+            List<MsgCharsetEnum> msgCharsetEnums = new ArrayList<>();
+            msgCharsetEnumDao.delelteByCharsetId(msgCharset.getId());
+            String[] ids = enumeration.split(",");
+            for (String id : ids){
+                MsgCharsetEnum msgCharsetEnum = new MsgCharsetEnum();
+                msgCharsetEnum.setCharset(tempMsgCharset);
+                msgCharsetEnum.setValue(id);
+                msgCharsetEnums.add(msgCharsetEnum);
+            }
+            msgCharsetEnumDao.save(msgCharsetEnums);
+            result = new Result(true,"添加字符集成功");
+        /*}*/
+        return result;
+    }
+
+    public Map<String,Object> getAll() {
+        List<MsgCharset> list = msgCharsetDao.findAll();
+        Map<String,Object> ret = new HashMap<>();
+        if (list == null || list.size() < 1){
+            ret.put("total",0);
+            ret.put("rows",list);
+            return ret;
+        }
+        ret.put("total",list.size());
+        ret.put("rows",list);
+        return ret;
+    }
+}

@@ -1,0 +1,195 @@
+package com.zdtech.platform.web.controller.system;
+
+import com.zdtech.platform.framework.entity.Result;
+import com.zdtech.platform.framework.entity.Role;
+import com.zdtech.platform.framework.entity.SysUser;
+import com.zdtech.platform.framework.entity.User;
+import com.zdtech.platform.framework.rbac.ShiroUser;
+import com.zdtech.platform.framework.service.GenericService;
+import com.zdtech.platform.framework.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@Controller
+@RequestMapping(value = "/sys/user")
+public class UserController {
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private GenericService genericService;
+
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public String userList() {
+        return "system/user/user-list";
+    }
+
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> query(@RequestParam Map<String, Object> params,
+                                           @PageableDefault Pageable page) {
+        Pageable p = page;
+        if (page != null){
+            p = new PageRequest(page.getPageNumber() < 1?0:page.getPageNumber() - 1,page.getPageSize(),page.getSort());
+        }
+        Map<String, Object> map = genericService.commonQuery("user", params, p);
+        List<User> rows = (List<User>)map.get("rows");
+        List<Map<String,Object>> datas = new ArrayList<>();
+        for (User user:rows){
+            Map<String,Object> data = new HashMap<>();
+            data.put("id",user.getId());
+            data.put("name",user.getName());
+            data.put("sysName",user.getSysUser().getSysName());
+            Set<Role> roles = user.getSysUser().getRoles();
+            StringBuilder sb = new StringBuilder();
+            for(Role role : roles){
+                sb.append(role.getName());
+                sb.append(",");
+            }
+            if (sb.length()>0 && sb.charAt(sb.length()-1)==','){
+                sb.deleteCharAt(sb.length()-1);
+            }
+            data.put("roles",sb.toString());
+            datas.add(data);
+        }
+        map.put("rows",datas);
+        return map;
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.GET)
+    public String addUser() {
+        return "system/user/user-add";
+    }
+    @RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
+    public String editUser(@PathVariable("id") Long id, Model model) {
+        User user = userService.getUser(id);
+        SysUser sysUser = user.getSysUser();
+        model.addAttribute("user",user);
+        model.addAttribute("sysUser",sysUser);
+        Set<Role> roleSet = sysUser.getRoles();
+        StringBuilder sb = new StringBuilder();
+        for(Role role : roleSet){
+            sb.append(role.getId().toString());
+            sb.append(",");
+        }
+        if (sb.length()>0 && sb.charAt(sb.length()-1)==','){
+            sb.deleteCharAt(sb.length()-1);
+        }
+        model.addAttribute("roleIds",sb.toString());
+        return "system/user/user-edit";
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @ResponseBody
+    public Result addUser(User user, SysUser sysUser,String roleIds) {
+        Result ret = new Result();
+        try {
+            //重名检查
+            if (user.getId() == null){
+                SysUser su = userService.getSysUser(sysUser.getSysName());
+                if (su != null){
+                    ret.setSuccess(false);
+                    ret.setMsg(String.format("账号[%s]已存在，请修改用户账号",sysUser.getSysName()));
+                    return ret;
+                }
+            }else {
+                User u = userService.getUser(user.getId());
+                if (u != null){
+                    SysUser su = u.getSysUser();
+                    String oldName = su.getSysName();
+                    String newName = sysUser.getSysName();
+                    if (!newName.equals(oldName)){
+                        SysUser osu = userService.getSysUser(newName);
+                        if (osu != null){
+                            ret.setSuccess(false);
+                            ret.setMsg(String.format("账号[%s]已存在，请修改用户账号",newName));
+                            return ret;
+                        }
+                    }
+                }
+            }
+            userService.addSysUser(sysUser,user,roleIds);
+            logger.info("@S|true|添加或修改用户成功！");
+        }catch (Exception e){
+            ret.setSuccess(false);
+            ret.setMsg("操作失败");
+            logger.error("@S|false|添加或修改用户失败!");
+        }
+        return  ret;
+    }
+
+    @RequestMapping(value = "/del", method = RequestMethod.POST)
+    @ResponseBody
+    public Result delUser(@RequestParam("ids[]")Long[] ids) {
+        Result ret = new Result();
+        try {
+            ShiroUser user = userService.getCurrentUser();
+            List<Long> idList = new ArrayList<>();
+            for (Long id:ids){
+                if (user.getUserId() == id){
+                    ret.setSuccess(false);
+                    ret.setMsg("不能删除当前登录用户");
+                    logger.warn("@S|false|不能删除当前登录用户！");
+                    return ret;
+                }
+                idList.add(id);
+            }
+            userService.delUsers(idList);
+            logger.info("@S|true|删除用户成功！");
+        }catch (Exception e){
+            ret.setSuccess(false);
+            ret.setMsg("操作失败");
+            logger.error("@S|false|删除用户失败!");
+        }
+        return  ret;
+    }
+
+    @RequestMapping(value = "/updatePassword",method = RequestMethod.GET)
+    public String updatePassword(){
+        return "system/user/user-password";
+    }
+
+    @RequestMapping(value = "/updatePassword",method = RequestMethod.POST)
+    @ResponseBody
+    public Result updatePassword(Long id,String oldPwd,String newPwd){
+        Result result = null;
+        try{
+            boolean action = userService.updatePassword(id,oldPwd,newPwd);
+            if (action){
+                result = new Result(true,"");
+            }else{
+                result = new Result(false,"");
+            }
+            logger.info("@S|true|更新用户密码成功,用户ID:{}",id);
+        }catch (Exception e){
+            logger.error("密码更新出错!",e);
+            logger.error("@S|false|更新用户密码出错,用户ID:{}", id);
+            result = new Result(false,"");
+        }
+        return result;
+    }
+    @RequestMapping(value = "/resetPwd",method = RequestMethod.POST)
+    @ResponseBody
+    public Result resetPwd(@RequestParam("ids[]")Long[] ids){
+        Result ret = new Result();
+        try {
+            userService.resetPwd(Arrays.asList(ids));
+            logger.info("@S|true|重置用户密码成功！");
+        }catch (Exception e){
+            ret.setSuccess(false);
+            ret.setMsg("操作失败");
+            logger.error("@S|false|重置用户失败!");
+        }
+        return ret;
+    }
+}

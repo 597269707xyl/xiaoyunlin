@@ -1,0 +1,296 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>往账自动化执行</title>
+    <script src="${ctx}/asset/js/boot.js"></script>
+    <script src="${ctx}/asset/js/app.js"></script>
+    <script src="${ctx}/asset/js/webSocket.js"></script>
+    <link href="${ctx}/asset/css/style.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+        .menu_lr a {
+            height: 25px;
+            width: 90px;
+            border: solid 1px #c9c7c2;
+            display: block;
+            float: left;
+            margin: 0 2px;
+            padding: 0 2px;
+            line-height: 24px;
+            text-decoration: none;
+            color: #818181;
+            background: #f0f1f4;
+            border-radius: 4px;
+            font-size: 12px
+        }
+
+        .menu_lr a:hover {
+            background: #e8f1ff
+        }
+
+        .menu_lr img {
+            vertical-align: middle;
+            margin: 0 1px;
+            padding: 0
+        }
+    </style>
+</head>
+<body style="width: 100%;height: 100%">
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'west',title:'功能测试项',split:true" style="width:23%">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin:4px 0">
+                <tbody>
+                <tr class="menu_lr">
+                    <td>
+                        <a href="#" style="background-color: #E6EFFF;" onclick="itemExec();;">
+                        <img src="${ctx}/asset/images/btn_allocate.png" width="16" height="16" alt=""/>批量执行</a>
+                        <a href="#" style="width: 50px;background-color: #E6EFFF;" onclick="exportExecResult();">
+                        <img src="${ctx}/asset/images/btn_add.png" width="16" height="16" alt=""/>导出</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div>
+                <ul id="projectTree" class="easyui-tree"></ul>
+            </div>
+    </div>
+    <div data-options="region:'center'">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'north',split:true" style="height:100%;">
+                <div class="easyui-layout" data-options="fit:true">
+                    <div class="toolBar" data-options="region:'north'">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width:100%;">
+                                    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="exec();">执行案例</a>
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td style="white-space:nowrap;">
+                                    <label style="font-family:Verdana;">案例编号: </label>
+                                    <input maxlength="30"
+                                           allowInput="true" class="easyui-textbox" id="searchNO"
+                                           onenter="onSearch();"/>
+                                    <label style="font-family:Verdana;">用例目的: </label>
+                                    <input class="easyui-textbox"
+                                           allowInput="true" id="searchPurpose"
+                                           onenter="onSearch();"/>
+                                    <label style="font-family: Verdana;">执行结果: </label>
+                                    <input id="searchSearch" class="easyui-combobox" style="width: 60px;"/>
+                                    <label style="font-family:Verdana;">失败原因: </label>
+                                    <input class="easyui-combobox" style="width: 120px"
+                                           id="searchResult" name="searchResult" data-options="panelHeight:'auto',valueField:'id',textField:'text',limitToList:true,url:'${ctx}/generic/dict/UC_FAIL_CLUASE'"/>
+                                    <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                                       onclick="onSearch();">查询</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div data-options="region:'center'">
+                        <table class="easyui-datagrid" id="usecaseList" data-options="height:'150'">
+                            <thead>
+                            <tr>
+                                <th data-options="field:'ck',checkbox:true"></th>
+                                <th data-options="field:'id',hidden:true"></th>
+                                <th data-options="field:'case_number',width:50">案例编号</th>
+                                <th data-options="field:'purpose',width:100">用例目的</th>
+                                <th data-options="field:'step',width:100">用例步骤</th>
+                                <th data-options="field:'expected',width:60">预期结果</th>
+                                <th data-options="field:'msg',width:25,formatter:showMsgData">测试数据</th>
+                                <th data-options="field:'resultType',width:20,formatter:resultType">执行结果</th>
+                                <th data-options="field:'resultDis',width:30,formatter:resultDescript">失败原因</th>
+                                <th data-options="field:'no',width:50">用例标识</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="window-exec-list"></div>
+<script>
+    function exportExecResult(){
+        var item = $('#projectTree').tree('getSelected');
+        if(item){
+            location.href="${ctx}/func/usecase/export?id="+item.id+"&type="+item.type;
+        } else {
+            showMsg("提示","请选择一条测试项!",true);
+        }
+    }
+
+    function resultType(value, row, index){
+        if(row.result == 'expected'){
+            return "成功";
+        } else {
+            return "失败";
+        }
+    }
+    function resultDescript(value, row, index){
+        if(row.result == 'expected'){
+            return "";
+        } else {
+            return row.resultDis;
+        }
+    }
+    $('#searchSearch').combobox({
+        valueField:'id',
+        textField:'text',
+        limitToList:true,
+        panelHeight:'auto',
+        data:[{id: "succ", text: "成功"},{id: "fail", text: "失败"}],
+        onSelect: function(record){
+            if(record.id == 'succ'){
+                $('#searchResult').combobox('setValue', '');
+            }
+        }
+    });
+    //用例
+    $('#usecaseList').datagrid({
+        fit: true,
+        fitColumns: true,
+        pagination: true,
+        nowrap:false,
+        pageSize: 20,
+        pageList: [10, 20, 30, 50],
+        url: "${ctx}/func/usecase/getUsecaseByItem?mark=send",
+        onClickRow: function (index, row) {
+        }
+    });
+    //功能测试项目树形列表
+    $(function () {
+        $('#projectTree').tree({
+            animate: true,
+            url: '${ctx}/func/exec/tree?mark=send&caseType=t&id=-1',
+            onlyLeafCheck: true,
+            cascadeCheck:false,
+            onSelect: function (node) {
+                var type = node.type;
+                $(this).tree('options').url = '${ctx}/func/exec/tree?mark=send&caseType=t&type='+type;
+                if (node.state == 'closed') {
+                    $(this).tree('expand', node.target);
+                } else {
+                    $(this).tree('collapse', node.target);
+                }
+                var p = {id: node.id, type: node.type};
+                $("#usecaseList").datagrid('load', p);
+            },
+            onExpand:function(node){
+            },
+            onBeforeExpand:function(node){
+                var type = node.type;
+                $(this).tree('options').url = '${ctx}/func/exec/tree?mark=send&caseType=t&type='+type;
+            },
+            onLoadError: function (Error) {
+                $.messager.alert('提示', '查询语句出错', 'error');
+                $("#projectTree").children().remove();
+            },
+            onLoadSuccess: function (success) {
+            }
+        });
+    });
+    //用例查询
+    function onSearch(){
+        var item = $('#projectTree').tree('getSelected');
+        if(item){
+            var searchNO = $("#searchNO").textbox("getValue");
+            var searchPurpose = $("#searchPurpose").textbox("getValue");
+            var searchResult = $("#searchResult").combobox("getValue");
+            var searchSearch = $("#searchSearch").combobox("getValue");
+            var p = {id: item.id, type: item.type};
+            if (searchNO != null && searchNO != "") {
+                p['caseNumber|like'] = searchNO;
+            }
+            if (searchPurpose != null && searchPurpose != "") {
+                p['purpose|like'] = searchPurpose;
+            }
+            if(searchResult != null && searchResult != ''){
+                p['result'] = searchResult;
+            }
+            if(searchSearch != null && searchSearch != ''){
+                p['search'] = searchSearch;
+            }
+            $("#usecaseList").datagrid('load', p);
+        }
+    }
+    //用例执行
+    function exec(){
+        var node = $('#projectTree').tree('getSelected');
+        var rows = $('#usecaseList').datagrid('getSelections');
+        if(rows.length > 0){
+            var ids = [];
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i]['id']);
+            }
+            var o = {"ids": ids};
+            $.ajax({
+                type: "POST",
+                url: "${ctx}/func/usecase/execUsecase",
+                data: JSON.stringify(o),
+                cache: false,
+                async: true,
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.success) {
+                        showMsg("提示","请稍后刷新列表查询执行结果!",true);
+                        var p = {id: node.id, type: node.type};
+                        $("#usecaseList").datagrid('reload');
+
+                    } else {
+                        showMsg("提示",data.msg,true);
+                    }
+                }
+            });
+        } else {
+            showMsg("提示","请选择要执行的用例!",true);
+        }
+    }
+    function itemExec(){
+        var node = $('#projectTree').tree('getSelected');
+        if (node) {
+                var node = $('#projectTree').tree('getSelected');
+                var o = {"id": node.id, "type": node.type, "action": "update"};
+            commonShowWindow(o, '缓冲执行时间', '${ctx}/func/usecase/sendInternal', 350, 140, true, false, false);
+        } else {
+            showMsg("提示","请选择要执行的测试项!",true);
+        }
+    }
+    //测试数据
+    function showMsgData(value, row, index){
+        return "<a href='#' onclick='showMsgDataDtail(" + row.id + ")'>测试数据</a>";
+    }
+    //测试执行数据详情
+    function showMsgDataDtail(usecaseId){
+        $.ajax({
+            url:'${ctx}/func/usecase/getExecIdByUsecaseId?id=' + usecaseId,
+            success: function(id){
+                $('#window-exec-list').window({
+                    title: '测试数据',
+                    width: 1000,
+                    height:600,
+                    href: '${ctx}/func/usecase/getUsecaseExecList',
+                    modal: false,
+                    minimizable: false,
+                    maximizable: false,
+                    shadow: false,
+                    cache: false,
+                    closed: false,
+                    collapsible: false,
+                    resizable: true,
+                    loadingMessage: '正在加载数据，请稍等......',
+                    onLoad: function () {
+                        setData(id);
+                    }
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>

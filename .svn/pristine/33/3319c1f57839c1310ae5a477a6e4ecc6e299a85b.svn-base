@@ -1,0 +1,94 @@
+package com.zdtech.platform.web.controller.system;
+
+import com.zdtech.platform.framework.entity.Backup;
+import com.zdtech.platform.framework.entity.Result;
+import com.zdtech.platform.framework.service.BackupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Created by huangbo on 2016/10/19.
+ */
+@Controller
+@RequestMapping(value = "/sys/backup")
+public class BackupController {
+    private static Logger logger = LoggerFactory.getLogger(BackupController.class);
+
+    @Autowired
+    private BackupService backupService;
+
+    @RequestMapping(value = "/list")
+    public String funcList() {
+        return "system/backup/backup";
+    }
+
+    @RequestMapping(value = "/backupDb", method = RequestMethod.POST)
+    @ResponseBody
+    public Result backupDB() {
+        Result result = new Result();
+        try {
+            if (!backupService.safeCheck()){
+                result.setSuccess(false);
+                result.setMsg("数据备份前，请先将仿真服务全部停止");
+                return result;
+            }
+            //先保存备份记录
+            String file = this.backupService.saveBackup();
+            //备份
+            this.backupService.backupDatabase(file);
+            result.setSuccess(true);
+            result.setMsg("数据备份成功");
+            logger.info("@S|true|数据备份成功");
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setMsg("数据备份失败");
+            logger.error("@S|false|数据备份失败");
+        }
+        return result;
+    }
+
+    @RequestMapping(value = "/restoreDb", method = RequestMethod.POST)
+    @ResponseBody
+    public Result restoreDB(@RequestParam("id") Long id) {
+        Result result = new Result();
+        try {
+            if (!backupService.safeCheck()){
+                result.setSuccess(false);
+                result.setMsg("数据恢复前，请先将仿真服务全部停止");
+                return result;
+            }
+            Backup backup = backupService.get(id);
+            String filePath = backup.getPath();
+            this.backupService.restoreDatabase(filePath);
+            result.setSuccess(true);
+            result.setMsg("数据恢复成功");
+            logger.info("@S|true|数据恢复成功");
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setMsg("数据恢复失败");
+            logger.info("@S|true|数据恢复失败");
+        }
+        return result;
+    }
+    @RequestMapping(value = "/del", method = RequestMethod.POST)
+    @ResponseBody
+    public Result delteBackup(@RequestParam("ids[]")Long[] ids){
+        Result ret = new Result();
+        try {
+            List<Long> idList = Arrays.asList(ids);
+            backupService.delBackup(idList);
+            ret.setSuccess(true);
+            ret.setMsg("操作成功");
+        }catch (Exception e){
+            ret.setSuccess(false);
+            ret.setMsg("操作失败");
+        }
+        return ret;
+    }
+}

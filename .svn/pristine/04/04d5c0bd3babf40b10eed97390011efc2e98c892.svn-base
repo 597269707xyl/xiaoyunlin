@@ -1,0 +1,98 @@
+package com.zdtech.platform.web.controller.funcexec;
+
+import com.zdtech.platform.framework.entity.NxyFuncItem;
+import com.zdtech.platform.framework.entity.NxyFuncUsecase;
+import com.zdtech.platform.framework.entity.Result;
+import com.zdtech.platform.framework.repository.NxyFuncItemDao;
+import com.zdtech.platform.framework.repository.NxyFuncUsecaseDao;
+import com.zdtech.platform.service.funcexec.FuncCasebaseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.net.URLDecoder;
+
+/**
+ * Created by lyj on 2018/7/11.
+ */
+@Controller
+@RequestMapping("/casebase")
+public class FuncCaseBaseController {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private NxyFuncItemDao nxyFuncItemDao;
+    @Autowired
+    private NxyFuncUsecaseDao nxyFuncUsecaseDao;
+    @Autowired
+    private FuncCasebaseService funcCasebaseService;
+
+    @RequestMapping(value = "/list")
+    public String list(){
+        return "/funcexec/casebase/func-case-base-list";
+    }
+
+    @RequestMapping(value = "/marklist")
+    public String marklist(){
+        return "/funcexec/casebase/func-case-mark-list";
+    }
+
+    @RequestMapping(value = "/backup")
+    public String backup(){
+        return "/funcexec/casebase/backup";
+    }
+
+    /**
+     * 添加或修改功能测试项页面
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/addItemPage", method = RequestMethod.GET)
+    public String addItemPage(Model model, String type, String mark){
+        model.addAttribute("type", type);
+        model.addAttribute("mark", mark);
+        return "/funcexec/casebase/func-item-add";
+    }
+
+    /**
+     * 添加用例页面
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/addUsecasePage/{itemId}", method = RequestMethod.GET)
+    public String addUsecasePage(Model model, @PathVariable("itemId") Long itemId){
+        model.addAttribute("itemId", itemId);
+        return "/funcexec/casebase/func-usecase-add";
+    }
+
+    @RequestMapping(value = "/addUsecase", method = RequestMethod.POST)
+    @ResponseBody
+    public Result addUsecase(NxyFuncUsecase usecase,  Long itemId) {
+        Result result = null;
+        try {
+            if(usecase.getId() != null){
+                NxyFuncUsecase nxyFuncUsecase = nxyFuncUsecaseDao.findOne(usecase.getId());
+                nxyFuncUsecase.setSeqNo(usecase.getSeqNo());
+                nxyFuncUsecase.setStep(usecase.getStep());
+                nxyFuncUsecase.setPurpose(usecase.getPurpose());
+                nxyFuncUsecase.setExpected(usecase.getExpected());
+                nxyFuncUsecase.setCaseNumber(usecase.getCaseNumber());
+                nxyFuncUsecaseDao.save(nxyFuncUsecase);
+                result = new Result(true, "");
+            } else {
+                result = funcCasebaseService.addUsecase(usecase, itemId);
+            }
+            logger.info("@A|true|添加功能测试用例成功!");
+        } catch (Exception e) {
+            logger.error("添加功能测试用例失败！", e);
+            result = new Result(false, "");
+        }
+
+        return result;
+    }
+}

@@ -1,0 +1,61 @@
+package com.zdtech.platform.service.funcexec;
+
+import com.zdtech.platform.framework.entity.*;
+import com.zdtech.platform.framework.repository.NxyFuncItemDao;
+import com.zdtech.platform.framework.repository.NxyFuncUsecaseDao;
+import com.zdtech.platform.framework.service.UcodeService;
+import com.zdtech.platform.framework.service.UserService;
+import com.zdtech.platform.framework.utils.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+
+/**
+ * Created by lyj on 2018/7/30.
+ */
+@Service
+public class FuncCasebaseService {
+    private Logger logger = LoggerFactory.getLogger(FuncCasebaseService.class);
+    @Autowired
+    private NxyFuncItemDao nxyFuncItemDao;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UcodeService ucodeService;
+    @Autowired
+    private NxyFuncUsecaseDao nxyFuncUsecaseDao;
+    @Value("${uno.pattern}")
+    private String unoPattern;
+    public String getUnoPattern() {
+        return unoPattern;
+    }
+
+    //添加功能测试用例
+    public Result addUsecase(NxyFuncUsecase usecase,  Long itemId) throws IOException {
+        Result ret = new Result();
+        //保存用例
+        NxyFuncItem item = nxyFuncItemDao.findOne(itemId);
+        if (item == null) {
+            logger.info("功能测试项为空");
+            ret.setSuccess(false);
+            return ret;
+        }
+        String pattern = getUnoPattern();
+        Bundle bundle = new Bundle();
+        bundle.putString("tno", item.getTestProject().getAbb() + "");
+        bundle.putString("ino", item.getName());
+        String uno = ucodeService.format(pattern, bundle);
+        usecase.setNo(uno);
+        usecase.setSeqNo(usecase.getSeqNo()==null?0:usecase.getSeqNo());
+        usecase.setNxyFuncItem(item);
+        usecase.setCreateUser(userService.getCurrentUser().getUserName());
+        usecase.setResult("noexec");
+        nxyFuncUsecaseDao.save(usecase);
+        //保存用例数据
+        return ret;
+    }
+}

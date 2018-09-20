@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sitemesh>
+    <mime-type>text/html</mime-type>
+    <mime-type>application/xhtml+xml</mime-type>
+    <mapping path="/asset/*" exclue="true"/>
+    <mapping path="/jsp/*" exclue="true"/>
+    <mapping path="/login" exclue="true"/>
+    <mapping path="/test/task/add" exclue="true"/>
+
+
+    <mapping path="/*" decorator="/WEB-INF/layout/main.jsp"/>
+
+</sitemesh>

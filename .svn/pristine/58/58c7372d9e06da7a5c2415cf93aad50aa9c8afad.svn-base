@@ -1,0 +1,584 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>功能测试项管理</title>
+    <script src="${ctx}/asset/js/boot.js"></script>
+    <script src="${ctx}/asset/js/app.js"></script>
+    <link href="${ctx}/asset/css/style.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+        .menu_lr a {
+            height: 25px;
+            width: 48px;
+            border: solid 1px #c9c7c2;
+            display: block;
+            float: left;
+            margin: 0 2px;
+            padding: 0 2px;
+            line-height: 24px;
+            text-decoration: none;
+            color: #818181;
+            background: #f0f1f4;
+            border-radius: 4px;
+            font-size: 12px
+        }
+
+        .menu_lr a:hover {
+            background: #e8f1ff
+        }
+
+        .menu_lr img {
+            vertical-align: middle;
+            margin: 0 1px;
+            padding: 0
+        }
+    </style>
+</head>
+<body style="width: 100%;height: 100%">
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'west',title:'功能测试项',split:true" style="width:23%">
+        <input id="projectId" name="projectId" type="hidden">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin:4px 0">
+            <tbody>
+            <tr class="menu_lr">
+                <td></td>
+                <td><a href="#" style="background-color: #E6EFFF;" onclick="addItem();"><img src="${ctx}/asset/images/btn_add.png" width="16" height="16" alt=""/>添加</a>&nbsp;&nbsp;
+                <a href="#" style="background-color: #E6EFFF;" onclick="editItem();"><img src="${ctx}/asset/images/btn_edit.png" width="16" height="16" alt=""/>修改</a>&nbsp;&nbsp;
+                <a href="#" style="background-color: #E6EFFF;" onclick="delItem();"><img src="${ctx}/asset/images/btn_delete.png" width="16" height="16" alt=""/>删除</a>&nbsp;&nbsp;
+                <a href="#" style="background-color: #E6EFFF;" onclick="copyItem();"><img src="${ctx}/asset/images/btn_add.png" width="16" height="16" alt=""/>复制</a>
+                <a href="#" style="background-color: #E6EFFF;" onclick="copyItemToK();"><img src="${ctx}/asset/images/btn_add.png" width="16" height="16" alt=""/>导出</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <div>
+            <ul id="projectTree" class="easyui-tree">
+            </ul>
+        </div>
+    </div>
+    <div data-options="region:'center'">
+        <div style="width: 100%;height: 99%">
+            <div class="toolBar">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="width:100%;">
+                            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addUsecase();">添加用例</a>
+                            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="editUsecase();">修改用例描述</a>
+                            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="delUsecase();">删除用例</a>
+                            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="copyUsecase();">复制用例</a>
+                            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="copyUsecaseToK();">导出用例</a>
+                            <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="synchrodata();">同步数据</a>
+                        </td>
+                    </tr>
+                </table>
+                <form id="queryForm">
+                    <table>
+                        <tr>
+                            <td>案例编号:</td>
+                            <td>
+                                <input maxlength="30"
+                                       allowInput="true" class="easyui-textbox" id="searchNO"
+                                       onenter="onSearchs();"/>
+                            </td>
+                            <td>用例目的:</td>
+                            <td>
+                                <input class="easyui-textbox"
+                                       allowInput="true" id="searchPurpose"
+                                       onenter="onSearchs();"/>
+                            </td>
+                            <td>
+                                <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                                   onclick="onSearchs();">查询</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div style="height: 87%">
+                <table id="usecaseList">
+                    <thead>
+                    <tr>
+                        <c:if test="${toolType=='nxyw'}">
+                            <th data-options="field:'ck',checkbox:true"></th>
+                            <th data-options="field:'id',hidden:true"></th>
+                            <th data-options="field:'seq_no',width:10">序号</th>
+                            <th data-options="field:'case_number',width:30">案例编号</th>
+                            <th data-options="field:'purpose',width:120">用例目的</th>
+                            <th data-options="field:'step',width:120">用例步骤</th>
+                            <th data-options="field:'expected',width:60">预期结果</th>
+                            <th data-options="field:'data',width:30,formatter:itemUsecaseData">用例数据</th>
+                            <th data-options="field:'no',width:30">用例标识</th>
+                        </c:if>
+                        <c:if test="${toolType=='atsp'}">
+                            <th data-options="field:'ck',checkbox:true"></th>
+                            <th data-options="field:'id',hidden:true"></th>
+                            <th data-options="field:'seq_no',width:10">序号</th>
+                            <th data-options="field:'no',width:50">用例标识</th>
+                            <th data-options="field:'case_number',width:50">案例编号</th>
+                            <th data-options="field:'purpose',width:120">用例目的</th>
+                            <th data-options="field:'step',width:120">用例步骤</th>
+                            <th data-options="field:'data',width:30,formatter:itemUsecaseData">用例数据</th>
+                        </c:if>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="window-usecase-data-list"></div>
+<div id="window-msg-list"></div>
+<div id="window-usecase-data-detail"></div>
+<div id="window-usecase-data"></div>
+<div id="window-expected-list"></div>
+<div id="window-rule-list"></div>
+<div id="window-rule-add"></div>
+<div id="window-field-list"></div>
+<div id="window-expected-set"></div>
+<div id="copy-window"></div>
+<div id="instance-window"></div>
+<div id="window-user-distribution"></div>
+<script>
+    //用例
+    $('#usecaseList').datagrid({
+        fit: true,
+        fitColumns: true,
+        pagination: true,
+        pageSize: 20,
+        pageList: [10, 20, 30, 50],
+        url: "${ctx}/func/usecase/getUsecaseByItem?mark=recv",
+        onClickRow: function (index, row) {
+        }
+    });
+    //功能测试项目树形列表
+    $(function () {
+        $('#projectTree').tree({
+            animate: true,
+            url: '${ctx}/func/exec/tree?mark=recv&caseType=t&id=-1',
+            onlyLeafCheck: true,
+            cascadeCheck:false,
+            onSelect: function (node) {
+                $('#projectTree').tree('check',node.target);
+                var type = node.type;
+                if (type == 'project') {
+                    $("#projectId").val(node.id);
+                }
+                $(this).tree('options').url = '${ctx}/func/exec/tree?mark=recv&caseType=t&type='+type;
+                if (node.state == 'closed') {
+                    $(this).tree('expand', node.target);
+                } else {
+                    $(this).tree('collapse', node.target);
+                }
+                var p = {id: node.id, type: node.type};
+                $("#usecaseList").datagrid('load', p);
+            },
+            onExpand:function(node){
+            },
+            onBeforeExpand:function(node){
+                var type = node.type;
+                $(this).tree('options').url = '${ctx}/func/exec/tree?mark=recv&caseType=t&type='+type;
+            },
+            onLoadError: function (Error) {
+                $.messager.alert('提示', '查询语句出错', 'error');
+                $("#projectTree").children().remove();
+            },
+            onLoadSuccess: function (success) {
+//                }
+            }
+        });
+    });
+    //复制测试项
+    function copyItem(){
+        var node = $('#projectTree').tree('getSelected');
+        var nodes = $('#projectTree').tree('getChecked');
+        if (nodes.length>0 || node) {
+            var ids = new Array();
+            if (node){
+                if (node.type=='project'){
+                    showMsg("提示","请选择要复制的测试项，项目不能复制！", true);
+                    return;
+                }
+                ids.push(node.id);
+                openCopyPage(ids);
+            }else {
+                for (var i = 0; i < nodes.length; i++) {
+                    ids.push(nodes[i].id);
+                }
+                openCopyPage(ids);
+            }
+        }else {
+            showMsg("提示","请选择要复制的测试项!", true);
+        }
+    }
+    function openCopyPage(ids){
+        $('#copy-window').window({
+            title: '目标路径',
+            width: 300,
+            height: 400,
+            href: '${ctx}/func/mark/copyItemPage',
+            modal: true,
+            minimizable: false,
+            maximizable: false,
+            shadow: false,
+            cache: false,
+            closed: false,
+            collapsible: false,
+            resizable: true,
+            loadingMessage: '正在加载数据，请稍等......',
+            onLoad: function () {
+                setItemCopyData(ids, "t")
+            },
+            onClose: function () {
+            }
+        });
+    }
+    //添加功能测试项
+    function addItem(){
+        var node = $('#projectTree').tree('getSelected');
+        if (node) {
+            commonShowWindow(null, '增加功能测试项', '${ctx}/func/mark/addItemPage?type=t', 400, 220, true, false, false);
+        } else {
+            showMsg("提示","请选择要添加功能测试项的项目!",true);
+        }
+    }
+    //修改功能测试项
+    function editItem() {
+        var ns = $('#projectTree').tree('getChecked');
+        var node = $('#projectTree').tree('getSelected');
+        if (ns.length>0 || node) {
+            if(ns.length>1){
+                showMsg("提示","请选择一条功能测试项进行修改！", true);
+                return;
+            }
+            var param = {action: 'update', id: node.id};
+            if(ns.length == 1){
+                param.id = ns[0].id;
+            } else {
+                var type = node.type;
+                if (type == 'project') {
+                    showMsg("提示","请选择要修改的功能测试项，项目不能修改！", true);
+                    return;
+                } else if (type == 'item') {
+                    param.id = node.id;
+                }
+            }
+            commonShowWindow(param, '修改功能测试项', '${ctx}/func/exec/addItemPage?type=t', 400, 220, true, false, false);
+        } else {
+            showMsg("提示","请选择要修改的功能测试项!", true);
+        }
+    }
+    //刷新功能测试项列表
+    function reloadTree(node,type){
+        var nodeType = node.type;
+        var tree = $('#projectTree');
+        if (type=='add'){
+            if (node.state == 'open' && nodeType != 'project') {
+                var node = tree.tree('getParent', node.target);
+            }
+            tree.tree('reload', node.target);
+        }else if(type == 'update'){
+            var parent = tree.tree('getParent', node.target);
+            if (parent) {
+                tree.tree('reload', parent.target);
+            }
+        }
+    }
+    //删除功能测试项
+    var nodeArr = new Array();
+    function delItem() {
+        var ns = $('#projectTree').tree('getChecked');
+        var node = $('#projectTree').tree('getSelected');
+        if(ns.length == 0 && node == null){
+            showMsg('提示','请选择要删除的功能测试项。',true);
+            return;
+        }
+        if(ns.length > 0){
+            var ids = new Array();
+            for (var i = 0; i < ns.length; i++) {
+                ids.push(ns[i].id);
+                nodeArr.push($('#projectTree').tree('getRoot', ns[i].target));
+            }
+            if (showConfirm('提示','确定要删除用例吗？',function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "${ctx}/func/exec/item/delete?ids=" + ids,
+                            cache: false,
+                            async: false,
+                            success: function (data) {
+                                var oldParent;
+                                for(var i=0; i<nodeArr.length; i++){
+                                    var parent = nodeArr[i];
+                                    if(!oldParent || parent == null | oldParent.id!=parent.id){
+                                        $('#projectTree').tree('reload', parent.target);
+                                        oldParent = parent;
+                                    }
+                                }
+                                $("#usecaseList").datagrid('load');
+                            }
+                        });
+                    }));
+        } else {
+            var type = node.type;
+            var id = node.id;
+            if (type == 'project') {
+                showMsg('提示','项目不可删除，只能删除功能测试项。',true);
+            } else {
+                if (showConfirm('提示','确定要删除功能测试项吗？',function(){
+                            $.ajax({
+                                type: "POST",
+                                url: "${ctx}/func/exec/item/del?id=" + id,
+                                cache: false,
+                                async: false,
+                                success: function (data) {
+                                    remove(node);
+                                    $("#usecaseList").datagrid('load');
+                                }
+                            });
+                        }));
+            }
+        }
+    }
+    //删除子节点
+    function remove(node) {
+        var parent = $('#projectTree').tree('getParent', node.target);
+        $('#projectTree').tree('reload', parent.target);
+    }
+    //添加用例
+    function addUsecase(){
+        var node = $('#projectTree').tree('getSelected');
+        if(!node || node.state != 'open' || node.children != null){
+            showMsg("提示","请选择一条功能测试项！", true);
+            return;
+        }
+        commonShowWindow(null, '添加用例', '${ctx}/func/mark/addUsecasePage/' + node.id, 430, 500, true, false, false);
+    }
+    //修改用例
+    function editUsecase(){
+        var rows = $('#usecaseList').datagrid('getSelections');
+        if(rows.length!=1){
+            showMsg("提示", "请选择一条记录", true);
+            return;
+        }
+        var param = {action: 'update', id: rows[0].id};
+        commonShowWindow(param, '修改用例', '${ctx}/func/mark/addUsecasePage/0', 430, 480, true, false, false);
+    }
+    //用例查询
+    function onSearchs(){
+        var item = $('#projectTree').tree('getSelected');
+        if(item){
+            var searchNO = $("#searchNO").textbox("getValue");
+            var searchPurpose = $("#searchPurpose").textbox("getValue");
+            var p = {id: item.id, type: item.type};
+            if (searchNO != null && searchNO != "") {
+                p['caseNumber|like'] = searchNO;
+            }
+            if (searchPurpose != null && searchPurpose != "") {
+                p['purpose|like'] = searchPurpose;
+            }
+            $("#usecaseList").datagrid('load', p);
+        }
+    }
+    //删除用例
+    function delUsecase(){
+        var rows = $('#usecaseList').datagrid('getSelections');
+        if(rows.length<1){
+            showMsg("提示", "请选择一条记录", true);
+            return;
+        }
+        var ids = new Array();
+        for (var i = 0; i < rows.length; i++) {
+            ids.push(rows[i].id);
+        }
+        if (showConfirm('提示','确定要删除测试用例吗？',function(){
+                    $.ajax({
+                        type: "POST",
+                        url: "${ctx}/func/exec/delUsecase",
+                        data: {ids: ids},
+                        cache: false,
+                        async: false,
+                        success: function (data) {
+                            if(data.success){
+                                $("#usecaseList").datagrid('reload');
+                            } else {
+                                showMsg("提示", "删除失败", true);
+                            }
+                        }
+                    });
+                }));
+    }
+    function itemUsecaseData(value, row, index){
+        return '<a href="javascript:itemshowusecasedatalist(' + row.id + ')">用例数据</a>';
+    }
+    function itemshowusecasedatalist(usecaseId){
+        $('#window-usecase-data-list').window({
+            title: '添加用例数据',
+            width: 650,
+            height:450,
+            href: '${ctx}/func/mark/usecaseDataListPage',
+            modal: false,
+            minimizable: false,
+            maximizable: false,
+            shadow: false,
+            cache: false,
+            closed: false,
+            collapsible: false,
+            resizable: true,
+            loadingMessage: '正在加载数据，请稍等......',
+            onLoad: function () {
+                setData(usecaseId);
+            }
+        });
+    }
+    //分配权限
+    function distribution(){
+        var node = $('#projectTree').tree('getSelected');
+        if(node){
+            if(node.type == 'project'){
+                showMsg("提示", "测试项目不能分配!", true);
+                return;
+            }
+            $('#window-user-distribution').window({
+                title: '分配人员权限',
+                width: 480,
+                height:330,
+                href: '${ctx}/func/exec/assign?itemId=' + node.id,
+                modal: false,
+                minimizable: false,
+                maximizable: false,
+                shadow: false,
+                cache: false,
+                closed: false,
+                collapsible: false,
+                resizable: true,
+                loadingMessage: '正在加载数据，请稍等......',
+                onLoad: function () {
+                }
+            });
+        }
+    }
+
+    //复制用例
+    function copyUsecase(){
+        var rows = $('#usecaseList').datagrid('getSelections');
+        if(rows.length > 0){
+            var ids = new Array();
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].id);
+            }
+            $('#copy-window').window({
+                title: '目标路径',
+                width: 300,
+                height: 400,
+                href: '${ctx}/func/mark/copyUsecasePage',
+                modal: true,
+                minimizable: false,
+                maximizable: false,
+                shadow: false,
+                cache: false,
+                closed: false,
+                collapsible: false,
+                resizable: true,
+                loadingMessage: '正在加载数据，请稍等......',
+                onLoad: function () {
+                    setItemCopyData(ids)
+                },
+                onClose: function () {
+                }
+            });
+        } else {
+            showMsg("提示", "请选择一条记录", true);
+            return;
+        }
+    }
+
+    function copyItemToK(){
+        var node = $('#projectTree').tree('getSelected');
+        var nodes = $('#projectTree').tree('getChecked');
+        if (nodes.length>0 || node) {
+            var ids = new Array();
+            if (node){
+                if (node.type=='project'){
+                    showMsg("提示","请选择要复制的测试项，项目不能复制！", true);
+                    return;
+                }
+                ids.push(node.id);
+                openCopyPageToK(ids, "item");
+            }else {
+                for (var i = 0; i < nodes.length; i++) {
+                    ids.push(nodes[i].id);
+                }
+                openCopyPageToK(ids, "item");
+            }
+        }else {
+            showMsg("提示","请选择要复制的测试项!", true);
+        }
+    }
+    function openCopyPageToK(ids, type){
+        $('#copy-window').window({
+            title: '目标路径',
+            width: 300,
+            height: 400,
+            href: '${ctx}/casebase/copyPage',
+            modal: true,
+            minimizable: false,
+            maximizable: false,
+            shadow: false,
+            cache: false,
+            closed: false,
+            collapsible: false,
+            resizable: true,
+            loadingMessage: '正在加载数据，请稍等......',
+            onLoad: function () {
+                setCopyData("recv", type, ids)
+            },
+            onClose: function () {
+            }
+        });
+    }
+
+    function copyUsecaseToK(){
+        var rows = $('#usecaseList').datagrid('getSelections');
+        if(rows.length > 0){
+            var ids = new Array();
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].id);
+            }
+            openCopyPageToK(ids, "usecase")
+        } else {
+            showMsg("提示", "请选择一条记录", true);
+            return;
+        }
+    }
+
+    function synchrodata(){
+        var rows = $('#usecaseList').datagrid('getSelections');
+        if(rows.length > 0){
+            var ids = [];
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i]['id']);
+            }
+            $.ajax({
+                type: "POST",
+                url: "${ctx}/casebase/synchrodata?mark=recv",
+                data: {ids: ids},
+                cache: false,
+                async: true,
+                success: function (data) {
+                    if (data.success) {
+                        showMsg("提示","同步数据成功!",true);
+
+                    } else {
+                        showMsg("提示",data.msg,true);
+                    }
+                }
+            });
+        } else {
+            showMsg("提示","请选择要同步的用例!",true);
+        }
+    }
+</script>
+</body>
+</html>

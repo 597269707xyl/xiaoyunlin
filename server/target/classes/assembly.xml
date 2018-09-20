@@ -1,0 +1,34 @@
+<assembly>
+    <id>bin</id>
+    <formats>
+        <!-- zip,tar,tar.gz,tar.bz2,jar,dir,war -->
+        <format>zip</format>
+    </formats>
+    <dependencySets>
+        <!-- 依赖包的输出路径 -->
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>/lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+    <!-- 需要打包的文件集 -->
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>server-new-1.0.0.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>assembly.xml</exclude>
+                <exclude>spring-jms.xml</exclude>
+                <exclude>spring-jms-mq.xml</exclude>
+            </excludes>
+        </fileSet>
+
+    </fileSets>
+</assembly>

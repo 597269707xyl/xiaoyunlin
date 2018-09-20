@@ -1,0 +1,66 @@
+package com.zdtech.platform.framework.repository;
+
+import com.zdtech.platform.framework.entity.NxyFuncUsecase;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigInteger;
+import java.util.List;
+
+/**
+ * Created by yjli on 2017/9/6.
+ */
+public interface NxyFuncUsecaseDao extends JpaRepository<NxyFuncUsecase, Long>, JpaSpecificationExecutor<NxyFuncUsecase> {
+
+    @Query(value = "select count(t.id) from NxyFuncUsecase t where t.nxyFuncItem.id = ?1")
+    int countByItemId(Long id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from NxyFuncUsecase t where t.id in (?1)")
+    int deleteUsecaseByIds(List<Long> ids);
+
+    @Query(value = "select t.id from nxy_func_usecase t left join nxy_func_item m on t.item_id = m.id where m.project = ?1", nativeQuery = true)
+    List<BigInteger> findByProjectId(Long id);
+
+    @Query(value = "select t.id from NxyFuncUsecase t where t.nxyFuncItem.id = ?1")
+    List<Long> findByItemId(Long id);
+
+    @Query(value = "select t from NxyFuncUsecase t where t.id in (?1) group by t.nxyFuncItem.id")
+    List<NxyFuncUsecase> findByUsecaseIdsGroupByItemId(List<Long> ids);
+
+    @Query(value = "select t.id from nxy_func_usecase t left join nxy_func_item m on t.item_id = m.id where m.project = ?1 and m.mark='send'", nativeQuery = true)
+    List<BigInteger> findByProjectIdAndMark(Long id);
+
+    /**
+     * @author huangbo
+     * @create 2018/7/26
+     **/
+
+    @Query(value = "select count(u) from NxyFuncUsecase u where u.nxyFuncItem.id=?1 and u.nxyFuncItem.mark = ?2")
+    public Long countAllUsecaseByItemIdAndMark(Long ItemId, String mark);
+
+    @Query(value = "select count(u) from NxyFuncUsecase u where u.nxyFuncItem.id=?1 and u.nxyFuncItem.mark = ?2 and u.expected = '成功'")
+    public Long countSucUsecaseByItemIdAndMark(Long ItemId, String mark);
+
+    @Query(value = "select count(u) from NxyFuncUsecase u where u.nxyFuncItem.id=?1 and u.nxyFuncItem.mark = ?2 and u.expected = '失败'")
+    public Long countFailUsecaseByItemIdAndMark(Long ItemId, String mark);
+
+    @Query(value = "select count(u) from NxyFuncUsecase u where u.nxyFuncItem.testProject.id=?1 and u.nxyFuncItem.mark = ?2")
+    public Long countAllUsecaseByProjectIdAndMark(Long ItemId, String mark);
+
+    @Query(value = "select count(u) from NxyFuncUsecase u where u.nxyFuncItem.testProject.id=?1 and u.nxyFuncItem.mark = ?2 and u.expected = '成功'")
+    public Long countSucUsecaseByProjectIdAndMark(Long ItemId, String mark);
+
+    @Query(value = "select count(u) from NxyFuncUsecase u where u.nxyFuncItem.testProject.id=?1 and u.nxyFuncItem.mark = ?2 and u.expected = '失败'")
+    public Long countFailUsecaseByProjectIdAndMark(Long ItemId, String mark);
+
+    @Query(value = "select u.id from NxyFuncUsecase u where u.nxyFuncItem.parentId=?1")
+    public List<Long> getIdsByParentId(Long id);
+
+    @Query(value = "select t from NxyFuncUsecase t where t.nxyFuncItem.id in (?1) order by t.seqNo desc ,t.id desc ")
+    List<NxyFuncUsecase> findByItemIdList(List<Long> ids);
+}

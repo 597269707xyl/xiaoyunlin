@@ -1,0 +1,22 @@
+package com.zdtech.platform.web.controller.defect;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * Created by lyj on 2018/7/11.
+ */
+@Controller
+@RequestMapping(value = "/defect")
+public class DefectController {
+
+    @RequestMapping(value = "/list")
+    public String list(){
+        return "defect/defect-query";
+    }
+
+    @RequestMapping(value = "/add")
+    public String add(){
+        return "defect/defect-add";
+    }
+}

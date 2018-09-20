@@ -1,0 +1,32 @@
+package com.zdtech.platform.framework.repository;
+
+import com.zdtech.platform.framework.entity.NxyFuncUsecaseExpected;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+/**
+ * Created by yjli on 2017/9/6.
+ */
+public interface NxyFuncUsecaseExpectedDao extends JpaRepository<NxyFuncUsecaseExpected, Long>, JpaSpecificationExecutor<NxyFuncUsecaseExpected> {
+
+    @Query(value = "select t from NxyFuncUsecaseExpected t where t.usecaseDataId = ?1 and t.type = ?2")
+    List<NxyFuncUsecaseExpected> queryExpectedList(Long id, String type);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from NxyFuncUsecaseExpected t where t.id in (?1)")
+    int delByIds(List<Long> ids);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from NxyFuncUsecaseExpected t where t.usecaseDataId = ?1")
+    int deleteByUsecaseDataId(Long id);
+
+    @Query(value = "select t from NxyFuncUsecaseExpected t where t.usecaseDataId = ?1")
+    List<NxyFuncUsecaseExpected> findByUsecaseDataId(Long id);
+}

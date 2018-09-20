@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--<bean id="mqConnectionFactory" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+        <property name="hostName">
+            <value>172.21.169.201</value>
+        </property>
+        <property name="port">
+            <value>1414</value>
+        </property>
+        <property name="queueManager">
+            <value>QMTEST</value>
+        </property>
+        <property name="channel">
+            <value>DC.SVRCONN</value>
+        </property>
+        <property name="transportType" value="1"/>
+        <property name="CCSID" value="1381"/>
+    </bean>-->
+    <bean id="mqConnectionFactory" class="com.zdtech.platform.simserver.net.jms.MQAuthenConnectionFactory">
+        <property name="hostName">
+            <value>10.102.129.152</value>
+        </property>
+        <property name="port">
+            <value>1417</value>
+        </property>
+        <property name="queueManager">
+            <value>QMEMBFE</value>
+        </property>
+        <property name="channel">
+            <value>SYSTEM.DEF.SVRCONN</value>
+        </property>
+        <property name="transportType" value="1"/>
+        <property name="CCSID" value="819"/>
+        <property name="userID" value="mqm"/>
+        <property name="password" value="ifinbms123"/>
+    </bean>
+
+    <bean id="jmsQueueConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="mqConnectionFactory"/>
+        <property name="sessionCacheSize">
+            <value>20</value>
+        </property>
+    </bean>
+    <!--<bean id="jmsDestinationResolver" class="org.springframework.jms.support.destination.DynamicDestinationResolver"/>-->
+    <bean id="jmsDestinationResolver" class="com.zdtech.platform.simserver.net.jms.MQDestinationResolver"/>
+
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate" scope="prototype">
+        <property name="connectionFactory" ref="jmsQueueConnectionFactory"/>
+        <property name="destinationResolver" ref="jmsDestinationResolver"/>
+        <property name="receiveTimeout" value="1000"/>
+        <property name="pubSubDomain" value="false"/>
+    </bean>
+
+
+</beans>

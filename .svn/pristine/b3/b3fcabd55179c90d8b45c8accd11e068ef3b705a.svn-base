@@ -1,0 +1,101 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>项目进度统计</title>
+    <script src="${ctx}/asset/js/boot.js"></script>
+    <script src="${ctx}/asset/js/app.js"></script>
+</head>
+<body>
+<div class="toolBar">
+    <form id="execForm" style="margin-bottom: 0px;">
+        <table>
+            <tr>
+                <td></td>
+                <td>测试项:</td>
+                <td>
+                    <input id="testItem" name="testItem" onclick="simSearch();"/>
+                </td>
+                <td>类型:</td>
+                <td>
+                    <select id="mark" name="mark" class="easyui-combobox" style="width:180px;"
+                            data-options="panelHeight:'auto',limitToList:'true'" value="to">
+                        <option value="send">往账</option>
+                        <option value="recv">来账</option>
+                    </select>
+                </td>
+                <td><a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                       onclick="simSearch();">统计</a></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div style="height: auto">
+    <table class="easyui-datagrid" id="dg">
+    </table>
+</div>
+
+<script>
+    var selectType;
+    $(function () {
+        $("#testItem").combotree({
+            url: '${ctx}/func/exec/tree?mark=send&caseType=t&id=-1&type=',
+            valueField: 'id',
+            textField: 'text',
+            onSelect: function (node) {
+                var type = node.type;
+                selectType = type;
+
+                $(this).tree('options').url = '${ctx}/func/exec/tree?mark=send&caseType=t&type=' + type;
+                if (node.state == 'closed') {
+                    $(this).tree('expand', node.target);
+                } else {
+                    $(this).tree('collapse', node.target);
+                }
+
+            },
+            onExpand: function (node) {
+            },
+            onBeforeExpand: function (node) {
+                var type = node.type;
+                $(this).tree('options').url = '${ctx}/func/exec/tree?mark=send&caseType=t&type=' + type;
+            },
+            onLoadError: function (Error) {
+
+            },
+            onLoadSuccess: function (success) {
+            }
+        });
+        $('#dg').datagrid({
+            //fit: true,
+            height: $(window).height() - 80,
+            fitColumns: true,
+            singleSelect: true,
+            pagination: true,
+            pageSize: 20,
+            pageList: [10, 20, 30, 50],
+            url: '${ctx}/proj/proj/getStatistics',
+            columns: [[
+                {field: 'id', title: 'id', hidden: true},
+                {field: 'projectName', title: '项目名称', width: 70},
+                {field: 'itemName', title: '测试项名称', width: 170},
+                {field: 'total', title: '总案例数', width: 70},
+                {field: 'suc', title: '通过案例数', width: 70},
+                {field: 'fail', title: '未通过案例数', width: 70},
+                {field: 'other', title: '未执行案例数', width: 70}
+            ]]
+        });
+    });
+    function simSearch() {
+        var testItem = $('#testItem').textbox('getValue');
+        var mark = $('#mark').combobox("getValue");
+        var p = {id: testItem, mark: mark, type: selectType};
+        $("#dg").datagrid('load', p);
+
+    }
+</script>
+</body>
+</html>
+

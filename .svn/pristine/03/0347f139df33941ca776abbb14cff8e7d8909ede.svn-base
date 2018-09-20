@@ -1,0 +1,433 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<html>
+<head>
+    <title>功能测试项管理</title>
+    <script src="${ctx}/asset/js/boot.js"></script>
+    <script src="${ctx}/asset/js/app.js"></script>
+    <link href="${ctx}/asset/css/style.css" rel="stylesheet" type="text/css"/>
+    <style type="text/css">
+        .menu_lr a {
+            height: 25px;
+            width: 48px;
+            border: solid 1px #c9c7c2;
+            display: block;
+            float: left;
+            margin: 0 2px;
+            padding: 0 2px;
+            line-height: 24px;
+            text-decoration: none;
+            color: #818181;
+            background: #f0f1f4;
+            border-radius: 4px;
+            font-size: 12px
+        }
+
+        .menu_lr a:hover {
+            background: #e8f1ff
+        }
+
+        .menu_lr img {
+            vertical-align: middle;
+            margin: 0 1px;
+            padding: 0
+        }
+    </style>
+</head>
+<body>
+<%--<div style="height: 310px">--%>
+    <form id="">
+        <table>
+            <tr>
+                <td colspan="2"><label>报文头:</label></td>
+                <td colspan="2"><label>-----------------------------------------</label></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">版本号:</label></td>
+                <td><input name="/transaction/header/msg/seqNb" value="02" class="easyui-textbox form-input" style="width: 250px;" />
+                </td>
+                <td><label style="color: red">报文编号:</label></td>
+                <td><input name="/transaction/header/msg/seqNb" value="NPS.142.001.01" class="easyui-textbox form-input" style="width: 250px;" /></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">发起系统编号:</label></td>
+                <td><input name="/transaction/header/msg/seqNb" value="MPS" class="easyui-textbox form-input" style="width: 250px;" />
+                </td>
+                <td><label style="color: red">发起方行号:</label></td>
+                <td><input name="/transaction/header/msg/seqNb" value="402002000011" class="easyui-textbox form-input" style="width: 250px;" /></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">发起日期:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="20170707" class="easyui-textbox form-input" style="width: 250px;" /></td>
+                <td><label style="color: red">发起时间:</label></td>
+                <td><input name="/transaction/header/msg/rcvMbrCd" value="105748" class="easyui-textbox form-input" style="width: 250px;" /></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">接收系统编号:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="NPS" class="easyui-textbox form-input" style="width: 250px;" /></td>
+                <td><label style="color: red">接收方行号:</label></td>
+                <td><input name="/transaction/header/msg/rcvMbrCd" value="400100000057" class="easyui-textbox form-input" style="width: 250px;" /></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">流水号:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="000000001641452" class="easyui-textbox form-input" style="width: 250px;" /></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">格式类型:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="XML" class="easyui-textbox form-input" style="width: 250px;" /></td>
+                <td><label style="color: red">调用模式:</label></td>
+                <td><input name="/transaction/header/msg/rcvMbrCd" value="ASYN" class="easyui-textbox form-input" style="width: 250px;" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><label>报文体:</label></td>
+                <td colspan="2"><label>-----------------------------------------</label></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">报文标识号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/GrpHdr/MsgId" value="201701290002162517" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">报文发送时间:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/GrpHdr/NbOfTxs" value="2017-08-16T16:42:56" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">明细业务总笔数:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="1" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">固定填写为CLRG:</label></td>
+                <td><input name="/transaction/header/msg/rcvMbrCd" value="CLRG" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">业务类型:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="D101" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">端到端标识号:</label></td>
+                <td><input name="/transaction/header/msg/rcvMbrCd" value="201701290002162515" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">明细标识号:</label></td>
+                <td><input name="/transaction/header/msg/sndMbrCd" value="201701290002162516" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">货币符号、金额:</label></td>
+                <td><input name="/transaction/header/msg/rcvMbrCd" value="12.09" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">固定填写为CRED:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/CtgyPurp/Prtry" value="CRED" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">收款人名称:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt" value="测试" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>收款人地址:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/InstgAgt/FinInstnId/ClrSysMmbId/MmbId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">收款人账号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/InstgAgt/BrnchId/Id" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">收款人开户行行号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAgt/FinInstnId/ClrSysMmbId/MmbId" value="400100000057" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">收款成员行行号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAgt/BrnchId/Id" value="400100000057" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">收款行行号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Nm" value="400100000057" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">付款人名称:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/PstlAdr/AdrLine" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>付款人地址:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id/Othr/Id" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">付款人账号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt/FinInstnId/ClrSysMmbId/MmbId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">付款人开户行行号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt/FinInstnId/ClrSysMmbId/MmbId" value="402002000011" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">付款成员行行号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Nm" value="402002000011" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">付款行行号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/PstlAdr/AdrLine" value="402002000011" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">业务种类编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Id/Othr/Id" value="03302" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>附言:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/Purp/Prtry" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>备注:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-Postscript" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>代理行手续费:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-Remark" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">认证方式:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-TransFee" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label style="color: red">认证信息:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-TranChnlTyp" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label style="color: red">交易渠道类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PayerAccTyp" value="06" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>清算日期/终态日期:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PayeeAccTyp" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>付款人账户类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-Track2Data" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><label>业务类为“个人通兑”时的附加域:</label></td>
+                <td colspan="2"><label>-----------------------------------------</label></td>
+            </tr>
+            <tr>
+                <td><label>收款人账户类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-Track3Data" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>第二磁道数据:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PsBkBlcAmt" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>第三磁道数据:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PsBkNo" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>存折余额:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-CardSeqId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>存折号码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PANEtrModCd" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>证件类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-TerEC" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><label>付款人账户类型为“IC卡”时的附加域:</label></td>
+                <td colspan="2"><label>-----------------------------------------</label></td>
+            </tr>
+            <tr>
+                <td><label>证件号码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-ICCndCd" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>卡序列号:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-ICCData" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>IC卡数据域:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-SgnNo" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>IC卡PAN输入方式:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PayerAcctIssrId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>终端读取能力:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-InstgTrxTrmTp" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>IC卡条件代码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PayeeAcctIssrId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>IC卡验证可靠性标志:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-InstgId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>交易类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-InstgAcctId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><label>业务类型为“协议付款”且种类为“快捷支付”时的附加域:</label></td>
+                <td colspan="2"><label>-----------------------------------------</label></td>
+            </tr>
+            <tr>
+                <td><label>收款方国家编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-InstgAcctIssrId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>收款方地区编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-OriTrxId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>收单机构标识:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-OriBkTrxId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>收款方交易终端类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PyerMrchntNo" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>收款方交易终端编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PyerMrchntNm" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>商户名称:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PyerMrchntShrtNm" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>商户编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-OriTrxAmt" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>商户类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-TrxSmmry" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>商户证件类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-InstgTrxTrmNo" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>商户证件编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-TrxDevcInf" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>商户行业类型:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-BatchId" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>网络交易平台名称:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-CertTyp" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <tr>
+                <td><label>订单编码:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-PayerIDInfo" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+                <td><label>订单详情:</label></td>
+                <td><input name="/transaction/body/FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd-DelayType" value="" class="easyui-textbox form-input" style="width: 250px;"/></td>
+            </tr>
+            <%--<c:forEach items="${list}" var="item" varStatus="s">--%>
+                <%--<c:if test="${s.index %2 == 0}">--%>
+                    <%--<tr>--%>
+                    <%--<td><a style="color: red">*${item.msgField.nameZh}</a> </td>--%>
+                    <%--<td><input name="${item.msgField.fieldId}" value="${item.defaultValue}"/></td>--%>
+                <%--</c:if>--%>
+                <%--<c:if test="${s.index %2 == 1}">--%>
+                    <%--<td>${item.msgField.nameZh}</td>--%>
+                    <%--<td><input name="${item.msgField.fieldId}" value="${item.defaultValue}"/></td>--%>
+                    <%--</tr>--%>
+                <%--</c:if>--%>
+            <%--</c:forEach>--%>
+        </table>
+    </form>
+<%--</div>--%>
+<%--<div style="text-align:center;padding:5px">--%>
+    <%--<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="onUsecaseDataDetailOk();">确定</a>--%>
+    <%--<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="onUsecaseDataDetailCancel();">取消</a>--%>
+<%--</div>--%>
+</body>
+<script>
+    var messageId;
+    var usecaseDataId;
+    var source;
+    var index;
+    function setData(param){
+        var usecaseDataList = param.usecaseDataList;
+        messageId = param.messageId;
+        usecaseDataId = param.usecaseDataId;
+        source = param.source;
+        index = param.index;
+        var param = 'messageId='+messageId;
+        if(typeof (usecaseDataId) != 'undefined' && usecaseDataId != '' && usecaseDataId != 0){
+            param = 'usecaseDataId='+usecaseDataId;
+        }
+        if(typeof(usecaseDataList) == "undefined" || usecaseDataList == '' || usecaseDataList == '[]'){
+            $('#tg-usecase-data-detail').treegrid({
+                fit:true,
+                url:'${ctx}/func/exec/msgData?'+param,
+                idField:'id',
+                treeField:'name',
+                fitColumns: true,
+                height: 410,
+                editable:true,
+                columns:[[
+                    {title: 'id', field: 'id', hidden: true},
+                    {title:'域名称',field:'name',width:150},
+                    {title:'中文名称',field:'nameZh',width:100},
+                    {title:'值',field:'value',width:100,editor:'text'}
+                ]],
+                onClickCell:function(field,row){
+
+                }
+            });
+        } else {
+            $('#tg-usecase-data-detail').treegrid({
+                fit:true,
+                idField:'id',
+                treeField:'name',
+                fitColumns: true,
+                height: 410,
+                editable:true,
+                columns:[[
+                    {title: 'id', field: 'id', hidden: true},
+                    {title:'域名称',field:'name',width:150},
+                    {title:'中文名称',field:'nameZh',width:80},
+                    {title:'值',field:'value',width:150,editor:'text'}
+                ]]
+            });
+            $('#tg-usecase-data-detail').treegrid('loadData',JSON.parse(usecaseDataList));
+        }
+        $.extend($.fn.datagrid.methods, {
+            editCell: function(jq,param){
+                return jq.each(function(){
+                    var opts = $(this).datagrid('options');
+                    var fields = $(this).datagrid('getColumnFields',true).concat($(this).datagrid('getColumnFields'));
+                    for(var i=0; i<fields.length; i++){
+                        var col = $(this).datagrid('getColumnOption', fields[i]);
+                        col.editor1 = col.editor;
+                        if (fields[i] != param.field){
+                            col.editor = null;
+                        }
+                    }
+                    $(this).datagrid('beginEdit', param.index);
+                    var ed = $(this).datagrid('getEditor', param);
+                    if (ed){
+                        if ($(ed.target).hasClass('textbox-f')){
+                            $(ed.target).textbox('textbox').focus();
+                        } else {
+                            $(ed.target).focus();
+                        }
+                    }
+                    for(var i=0; i<fields.length; i++){
+                        var col = $(this).datagrid('getColumnOption', fields[i]);
+                        col.editor = col.editor1;
+                    }
+                });
+            },
+            enableCellEditing: function(jq){
+                return jq.each(function(){
+                    var dg = $(this);
+                    var opts = dg.datagrid('options');
+                    opts.oldOnClickCell = opts.onClickCell;
+                    opts.onClickCell = function(index, field){
+                        if (opts.editIndex != undefined){
+                            if (dg.datagrid('validateRow', opts.editIndex)){
+                                dg.datagrid('endEdit', opts.editIndex);
+                                opts.editIndex = undefined;
+                            } else {
+                                return;
+                            }
+                        }
+                        dg.datagrid('selectRow', index).datagrid('editCell', {
+                            index: index,
+                            field: field
+                        });
+                        opts.editIndex = index;
+                        opts.oldOnClickCell.call(this, index, field);
+                    }
+                });
+            }
+        });
+        $('#tg-usecase-data-detail').treegrid().treegrid('enableCellEditing');
+
+    }
+    function onUsecaseDataDetailOk(){
+        var node = $('#tg-usecase-data-detail').treegrid('getSelected');
+        if (node != null){
+            $('#tg-usecase-data-detail').treegrid('endEdit',node.id);
+        }
+        var rows = $('#tg-usecase-data-detail').treegrid('getData');
+        var strJson = JSON.stringify(rows);
+        if(typeof (usecaseDataId) == 'undefined' || usecaseDataId == 0){
+            if(source == 'data'){
+                $('#usecaseDataList').textbox('setValue',strJson);
+            } else if(source == 'list'){
+                var rows = $('#dg-usecase-data-list').datagrid('getRows');
+                rows[index].usecaseDataList = strJson;
+                $('#dg-usecase-data-list').datagrid('loadData', rows);
+            }
+            onUsecaseDataDetailCancel();
+        } else {
+            $.ajax({
+                url: '${ctx}/func/exec/updateUsecaseDataMsg',
+                type: 'POST',
+                data: {usecaseDataId: usecaseDataId, msg: strJson},
+                success: function(data){
+                    if(data.success){
+                        onUsecaseDataDetailCancel();
+                    } else {
+                        showMsg('提示', '修改失败!', true);
+                    }
+                }
+            })
+        }
+    }
+
+    function onUsecaseDataDetailCancel(){
+        $('#window-usecase-data-detail').window('close');
+    }
+</script>
+</html>

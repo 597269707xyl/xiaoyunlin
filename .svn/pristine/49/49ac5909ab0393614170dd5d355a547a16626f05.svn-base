@@ -1,0 +1,83 @@
+package com.zdtech.platform.service.message;
+
+import com.zdtech.platform.framework.entity.MsgDataType;
+import com.zdtech.platform.framework.entity.MsgField;
+import com.zdtech.platform.framework.entity.Result;
+import com.zdtech.platform.framework.entity.Role;
+import com.zdtech.platform.framework.repository.MsgDataTypeDao;
+import com.zdtech.platform.framework.repository.MsgFieldDao;
+import com.zdtech.platform.framework.service.FieldCacheService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * Created by leepan on 2016/5/4.
+ */
+@Service
+public class MsgFieldService {
+    @Autowired
+    private MsgFieldDao msgFieldDao;
+    @Autowired
+    private MsgDataTypeDao msgDataTypeDao;
+    @Autowired
+    private FieldCacheService fieldCacheService;
+
+
+    public Result addField(MsgField field) {
+        field.setFieldId(field.getFieldId().trim());
+        Result ret = new Result();
+        Long id = field.getId();
+        if (id == null){
+            //新增
+            List<MsgField> list = msgFieldDao.findByFieldIdAndType(field.getFieldId(),field.getMsgType());
+            if (list != null && list.size() > 0){
+                ret.setSuccess(false);
+                ret.setMsg("域id已存在");
+            }else {
+                msgFieldDao.save(field);
+                ret.setSuccess(true);
+                ret.setMsg("操作成功");
+            }
+        }else {
+            MsgField old = msgFieldDao.findOne(id);
+            String oldFieldId = old.getFieldId();
+            String oldFieldType = old.getMsgType();
+            String newFieldId = field.getFieldId();
+            String newFieldType = field.getMsgType();
+            if (newFieldId.equalsIgnoreCase(oldFieldId) && newFieldType.equalsIgnoreCase(oldFieldType)){
+                msgFieldDao.save(field);
+                ret.setSuccess(true);
+                ret.setMsg("操作成功");
+                fieldCacheService.setXmlFieldNameZh(field.getFieldId(), field.getNameZh());
+            }else {
+                List<MsgField> list = msgFieldDao.findByFieldIdAndType(field.getFieldId(),field.getMsgType());
+                if (list != null && list.size() > 0){
+                    ret.setSuccess(false);
+                    ret.setMsg("域id已存在");
+                }else {
+                    msgFieldDao.save(field);
+                    ret.setSuccess(true);
+                    ret.setMsg("操作成功");
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    public MsgField get(Long id) {
+        return msgFieldDao.findOne(id);
+    }
+
+    public void deleteFields(List<Long> ids) {
+        for (Long id:ids){
+            deleteField(id);
+        }
+    }
+
+    private void deleteField(Long id) {
+        msgFieldDao.delete(id);
+    }
+}

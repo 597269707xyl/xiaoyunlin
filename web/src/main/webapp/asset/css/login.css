@@ -1,0 +1,27 @@
+*{margin: 0;padding:0;}
+a{text-decoration: none;}
+body{font-size: 14px;font-family:"微软雅黑";position: relative;width: 100%;background: url(../images/body_bg.png) #fff no-repeat;background-position:top;}
+.login{background: url(../images/dlk_bg.png);width:620px;height:358px;position:absolute;left:50%;top:50%;margin-top:-179px;margin-left:-310px;}
+.login_top{width: 580px;margin:20px;text-align:center;border-bottom: 1px solid #96dace;}
+.login_btn{
+	position: absolute;
+	right: 35px;
+	bottom: 40px;
+	width: 358px;
+}
+.login_btn input{background:url(../images/login_btn.png) no-repeat;width: 132px;height: 42px;color:#fff;border:0;font-size: 26px;font-family:"微软雅黑";cursor: pointer;}
+.copy{color: #17bfcb;font-size: 16px;position: absolute;bottom:0px;width: 100%;}
+.copy p{text-align:center; background-color:#06213a; height:80px; color:#24a0c1; line-height:80px;}
+.login_Inp{width:382px;margin-left:80px;}
+.login_txt input{height:37px;border-radius:5px;padding-left:40px;border:1px solid #ccc;outline:none;line-height:37px;font-size: 16px;font-family:"微软雅黑";}
+.login_txt{margin-bottom:20px;height: 37px;}
+.login_txt input.username{width: 340px;background: url(../images/login_name.png) #fafafa no-repeat;background-position:8px 8px;}
+.login_txt input.userpwd{width: 340px;background: url(../images/login_pwd.png) #fafafa no-repeat;background-position:8px 8px;}
+.login_txt input.useryzm{width: 203px;float: left;}
+.login_txt img{float: left;margin-left:5px;}
+.for_rem{height:20px;}
+.rember{float: left;color:#17bfcb;}
+.rember input{height:16px;width:16px;float:left;}
+.rember span{float: left;margin-left:8px;display: inline-block;}
+.forget{float:right;}
+.forget a{color:#17bfcb;}

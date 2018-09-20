@@ -1,0 +1,148 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    background: #e8edff;
+    background-color: #E0ECFF;
+}
+
+.popup {
+    height: auto;
+}
+
+.popup table {
+    border-collapse: separate;
+    width: 100%
+}
+
+.popup table td {
+    height: 27px;
+    width: auto;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold
+}
+
+.single td span {
+    width: 95% !important;
+}
+
+.single td span span {
+    width: auto !important;
+}
+
+.popup .popup_label {
+    width: auto;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold
+}
+
+/*.popup table .popup_input {width:100%!important;}*/
+/*.popup .textbox-f{width: 100%}*/
+.buttonBar {
+    text-align: center;
+    padding: 5px;
+    clear: left;
+    position: absolute;
+    bottom: 5px;
+    width: 90%
+}
+
+.buttonBar .easyui-linkbutton {
+    width: 60px;
+    margin: 10px 10px;
+}
+
+.toolBar {
+    width: 100%;
+    height: auto !important;
+    background-color: #E0ECFF;
+    border-top: hidden;
+}
+
+/*.toolBar table {
+    width: 100%
+}*/
+
+.content {
+    width: 100%;
+    height: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.topContent, .bottomContent {
+    width: 100%;
+    height: 50%;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #95B8E7;
+}
+
+.topContent .datagrid {
+    /*height: 85% !important;*/
+    /*margin-bottom: 0;*/
+}
+
+.wholeContent .datagrid {
+    height: 92% !important;
+}
+
+/*
+.topContent .panel-body{height: 100%!important;}
+*/
+/*.bottomContent {
+    height: 50%;
+    bottom: 0;
+}*/
+
+.title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #0E2D5F;
+    height: 16px;
+    line-height: 16px;
+    background-color: #E0ECFF;
+
+}
+
+.toolBar table {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#queryForm {
+    margin-bottom: 0;
+}
+
+.layout-split-north {
+    border-bottom: 0;
+}
+
+.panel-header{
+    border: 0;
+}
+
+
+
+#mainTab .tabs-panels{
+    border: 0;
+}
+/*.bottomContent .datagrid-row{
+    height:5%;
+}*/
+
+/*.bottomContent .datagrid-body {
+    height: auto!important;
+}*/
+
+/*
+.popup .popup_input {width: 100%!important;}*/
+#specification{background-color: white}
+#specification p {margin:10px 10px 10px 50px;}
+#specification img {margin:10px 10px 10px 80px;}
